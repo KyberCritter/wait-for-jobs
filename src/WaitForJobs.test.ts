@@ -186,6 +186,20 @@ describe("wait-for-jobs", () => {
         expect(setFailed).toHaveBeenCalledWith('error: job "build" failed');
     });
 
+    test("does not log success message on failure", async () => {
+        setFailed.mockImplementation(() => {
+            process.exitCode = 1;
+        });
+        getCurrentJobs.mockResolvedValueOnce({
+            jobs: [{ name: "build", status: "completed", conclusion: "failure" }]
+        });
+        await new WaitForJobs().start();
+        expect(setFailed).toHaveBeenCalledWith('error: job "build" failed');
+        const successCall = info.mock.calls.find((call: string[]) => call[0]?.includes("success 🎉"));
+        expect(successCall).toBeUndefined();
+        process.exitCode = 0;
+    });
+
     test("handle skipped conclusion", async () => {
         getCurrentJobs.mockResolvedValueOnce({
             jobs: [{ name: "build", status: "completed", conclusion: "skipped" }]

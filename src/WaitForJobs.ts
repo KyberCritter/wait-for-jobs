@@ -193,6 +193,8 @@ export default class WaitForJobs {
         const { timeout, wait, cleanup, onRejected, summaries } = this;
         await Promise.race([timeout(), wait()]).then(cleanup, onRejected);
         summaries.forEach(summary => info(summary.toString()));
-        info(`took ${duration(this.startedAt)}, all job dependencies completed with success 🎉`);
+        if (process.exitCode !== 1) {
+            info(`took ${duration(this.startedAt)}, all job dependencies completed with success 🎉`);
+        }
     };
 }
